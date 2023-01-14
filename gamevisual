@@ -1,0 +1,409 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Rendering;
+
+using TMPro;
+
+
+
+public class PLayerMovement : MonoBehaviour
+{
+
+   
+    public CharacterController controller;
+    public float speed = 3f;
+    public GameObject bat;
+    public float nexttimetoshoot = 0f;
+    public Animation animforsprint;
+
+    public GameObject gun;
+    public GameObject magnum;
+    public GameObject uzi;
+    public GameObject svd;
+    public GameObject shotgun;
+
+    public GameObject cameras;
+    public GameObject theactualactualplayerlikeforreal;
+    public GameObject roof;
+    public float gravity = -19.8f;
+    public Transform groundcheck;
+    public float grounddistance = 0.4f;
+    public Animator anim;
+    public LayerMask groundMask;
+  
+    public AudioSource walking;
+    public LayerMask playermask;
+
+
+
+    Vector3 velocity;
+
+     float Jumpheight = 1f;
+    public bool isgrounded;
+   
+    public GameObject player;
+    public Transform player1;
+
+
+    bool isair;
+    public Vector3 mousepos;
+
+ 
+    bool ismoving;
+    bool moving;
+    bool movingreal;
+
+
+
+    bool animatorwalking;
+    bool issprinting;
+
+    bool isrotable;
+    public float xaxis;
+    bool issuperotatable;
+  
+    public bool hasmove;
+    
+
+
+
+    // Start is called before the first frame update
+    
+    void Start()
+    {
+        ismoving = true;
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+
+
+        isair = !isgrounded;
+        isgrounded = Physics.CheckSphere(groundcheck.position, grounddistance, groundMask);
+
+
+        float z = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
+
+
+        Vector3 x = Camera.main.WorldToScreenPoint(player.transform.position);
+        Vector3 mouse = Input.mousePosition;
+        if (mouse.x < x.x)
+        {
+            player.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else
+        {
+            player.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+
+        // If currently pressing W..
+        // mouse rotation
+
+
+        if (isrotable)
+
+        {
+
+            if (Input.GetKeyDown(KeyCode.D))
+            {
+                player.transform.rotation = Quaternion.Euler(0, 0, 0);
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                player.transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
+        }
+        if (issuperotatable)
+
+        {
+            if (Input.GetKey(KeyCode.D))
+            {
+                player.transform.rotation = Quaternion.Euler(0, 0, 0);
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                player.transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
+        }
+
+
+
+
+        if (bat.activeSelf == true)
+        {
+            if (ismoving == true)
+            {
+                if (Input.GetKey(KeyCode.A) && isgrounded || Input.GetKey(KeyCode.D) && isgrounded)
+
+                {
+                    anim.SetFloat("bat", 1f);
+
+
+                }
+                if (!Input.GetKey(KeyCode.A) && isgrounded && !Input.GetKey(KeyCode.D) && isgrounded)
+                {
+                    anim.SetFloat("bat", 0f);
+                }
+            }
+
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A) && isgrounded || Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.D) && isgrounded)
+            {
+                player1.GetComponent<Animator>().Play("sprint");
+                ismoving = false;
+
+
+
+
+
+            }
+            else
+            {
+                ismoving = true;
+            }
+            if (velocity.y <= -2f && isgrounded == false)
+            {
+                player1.GetComponent<Animator>().Play("jump land");
+
+
+
+            }
+            if (velocity.y > -2f && isgrounded != true)
+            {
+
+                player1.GetComponent<Animator>().Play("jump cycle");
+            }
+        }
+
+        if (gun.activeSelf == true || uzi.activeSelf == true || svd.activeSelf == true|| shotgun.activeSelf == true || magnum.activeSelf == true)
+        {
+            anim.SetFloat("genral select", 1.1f); 
+
+            if (ismoving == true)
+            {
+                if (Input.GetKey(KeyCode.A) && isgrounded || Input.GetKey(KeyCode.D) && isgrounded)
+
+                {
+                    anim.SetFloat("gun", 0.5f);
+
+
+                }
+                if (!Input.GetKey(KeyCode.A) && isgrounded && !Input.GetKey(KeyCode.D) && isgrounded)
+                {
+                    anim.SetFloat("gun", 0f);
+                }
+                if (Input.GetButton("Fire1"))
+                {
+                    anim.SetFloat("gun", 1f);
+                }
+                if (Input.GetKey(KeyCode.A) && isgrounded && Input.GetButton("Fire1") || Input.GetKey(KeyCode.D) && isgrounded && Input.GetButton("Fire1"))
+
+                {
+
+
+                    anim.SetFloat("gun", 1.5f);
+                }
+
+            }
+            if(anim)
+          
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A) && isgrounded || Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.D) && isgrounded)
+            {
+                    anim.SetFloat("gun", 2f);
+                    ismoving = false;
+
+
+
+
+            }
+            else
+            {
+                ismoving = true;
+            }
+            if (velocity.y <= -2f && isgrounded == false)
+            {
+                player1.GetComponent<Animator>().Play("gun jump land");
+
+
+
+            }
+            if (velocity.y > -2f && isgrounded != true)
+            {
+
+                player1.GetComponent<Animator>().Play("gun jump");
+            }
+        }
+
+
+
+
+        velocity.y += gravity * Time.deltaTime;
+
+
+
+    
+       
+     
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            speed++;
+        }
+        else
+        {
+            speed--;
+        }
+    
+    
+        
+        if(speed <= 3.5f)
+        {
+            speed = 3.5f;
+        }
+     
+        if (speed >= 17f)
+        {
+            speed = 17f;
+
+        }
+
+
+
+        
+
+
+        Vector3 move = transform.forward * z;
+        if (movingreal == true)
+        {
+
+            move =  transform.right * z;
+        }
+       
+     
+        
+
+
+       
+        
+        
+
+  
+
+
+
+
+
+
+
+
+        controller.Move(move * speed * Time.deltaTime);
+        // Just for climbing script
+      
+
+
+
+        //climbing script stops   
+        controller.Move(velocity * Time.deltaTime);
+
+       if(isgrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+
+
+        }
+        if (Input.GetButtonDown("Jump") && isgrounded )
+        {
+       
+            Jump();
+
+
+
+
+        }
+       
+        if (!isgrounded)
+        {
+         
+
+
+            
+        }
+        else
+        {
+         
+        }
+     
+       
+        
+    }
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // new path begins
+
+
+
+
+
+
+    public void Jump()
+    {
+
+        velocity.y = Mathf.Sqrt(Jumpheight * -2f * gravity);
+   
+
+
+    }
+    public void fly()
+    {
+
+        velocity.y = Mathf.Sqrt(10f * -2f * gravity);
+    }
+
+     public void hi()
+      {
+        cameras.GetComponent<Animator>().Play("jump bob 1");
+
+    }
+
+
+public void rotatetho()
+    {
+        issuperotatable = true;
+        Invoke("notsomuchrotatablelol", 2f);
+
+    }
+    public void notsomuchrotatablelol()
+    {
+        issuperotatable = false;
+    }
+    public void walknofurther()
+    {
+        walking.Play();
+
+    }
+  
+
+
+}
